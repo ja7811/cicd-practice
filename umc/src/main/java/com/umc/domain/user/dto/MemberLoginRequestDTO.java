@@ -1,8 +1,7 @@
 package com.umc.domain.user.dto;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
-
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
