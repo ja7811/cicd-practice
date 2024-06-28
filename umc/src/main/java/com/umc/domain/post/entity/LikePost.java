@@ -1,13 +1,9 @@
 package com.umc.domain.post.entity;
 
 import com.umc.common.entity.BaseTimeEntity;
-import com.umc.domain.board.entity.Board;
-import com.umc.domain.comment.entity.Comment;
 import com.umc.domain.user.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Builder
@@ -16,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name= "post")
 @AllArgsConstructor
-public class Post extends BaseTimeEntity {
+public class LikePost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,18 +23,6 @@ public class Post extends BaseTimeEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
-
-    @Column
-    private String title;
-
-    @Column
-    private String content;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<PostImage> images;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    @JoinColumn(name = "post_id")
+    private Post post;
 }
