@@ -24,7 +24,7 @@ public class PostController {
     @CrossOrigin
     @Operation(summary = "게시글 조회 API")
     @GetMapping
-    public ApiResponse<List<SimplePostResponseDTO>> findPosts(@RequestParam String params) {
+    public ApiResponse<List<SimplePostResponseDTO>> findPosts() {
         return postService.findAll();
     }
 
