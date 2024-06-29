@@ -23,4 +23,9 @@ public class PostImage {
     private String originalFilename;
 
     private String storedFilename;
+
+    public void setPost(Post post){
+        post.getImages().add(this);
+        this.post = post;
+    }
 }
