@@ -1,7 +1,5 @@
 package com.umc.domain.post.dto;
 
-import com.umc.domain.board.entity.Board;
-import com.umc.domain.user.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,9 +7,12 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class SimplePostDTO {
+public class SimplePostResponseDTO {
+    private Long id;
     private String title;
-    private Board board;
-    private Member writer;
+    private Long boardId;
+    private String writerNickname;
+
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }
