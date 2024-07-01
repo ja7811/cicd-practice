@@ -45,7 +45,7 @@ public class PostController {
     @CrossOrigin
     @Operation(summary = "게시글 생성 API")
     @PostMapping
-    public ApiResponse<Object> postPost(@RequestParam(name = "boardId") String boardId,
+    public ApiResponse<String> postPost(@RequestParam(name = "boardId") String boardId,
                                         @ModelAttribute PostRequestDTO postRequestDto,
                                         @RequestParam(value = "images", required = false) MultipartFile[] images){
         return postService.save(boardId, postRequestDto, images);
@@ -54,9 +54,37 @@ public class PostController {
     @CrossOrigin
     @Operation(summary = "게시글 수정 API")
     @PutMapping("/{postId}")
-    public ApiResponse<Object> updatePost(@PathVariable String postId,
+    public ApiResponse<String> updatePost(@PathVariable String postId,
                                           @ModelAttribute PostRequestDTO postRequestDto,
                                           @RequestParam(value = "images", required = false) MultipartFile[] images){
         return postService.update(postId, postRequestDto, images);
+    }
+
+    @CrossOrigin
+    @Operation(summary = "게시글 좋아요 API")
+    @PostMapping("/{postId}/likes")
+    public ApiResponse<String> likePost(@PathVariable String postId){
+        return postService.hitLike(postId);
+    }
+
+    @CrossOrigin
+    @Operation(summary = "게시글 좋아요 개수 조회 API")
+    @GetMapping("/{postId}/likes")
+    public ApiResponse<Integer> getLikes(@PathVariable String postId){
+        return postService.getLikes(postId);
+    }
+
+    @CrossOrigin
+    @Operation(summary = "사용자가 좋아요 누른 게시글 조회 API")
+    @GetMapping("/liked")
+    public ApiResponse<List<SimplePostResponseDTO>> getLikedPosts(){
+        return postService.getLikedPostsByUser();
+    }
+
+    @CrossOrigin
+    @Operation(summary = "게시글 좋아요 누름 여부 조회 API")
+    @GetMapping("/{postId}/liked")
+    public ApiResponse<Boolean> checkLike(@PathVariable String postId){
+        return postService.checkLike(postId);
     }
 }

@@ -24,6 +24,8 @@ public enum ErrorCode implements BaseErrorCode {
     MEMBER_SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "SIGNUP4001", "회원가입 유효성 검사 실패"),
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "SIGNUP4002", "이미 존재하는 이메일입니다."),
 
+    // 게시글 관련 에러
+    LIKE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "POST4001", "이미 좋아요를 눌렀습니다."),
     ;
 
 

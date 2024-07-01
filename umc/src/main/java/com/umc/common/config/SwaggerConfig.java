@@ -15,8 +15,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI SchrodingerApi() {
         Info info = new Info()
-                .title("BuddyU API")
-                .description("BuddyU API 명세서")
+                .title("제목")
+                .description("명세서 설명")
                 .version("1.0.0");
 
         String jwtSchemeName = "JWT TOKEN";

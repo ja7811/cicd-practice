@@ -1,6 +1,8 @@
 package com.umc.domain.post.service;
 
+import com.umc.common.jwt.SecurityUtil;
 import com.umc.common.response.ApiResponse;
+import com.umc.common.response.status.ErrorCode;
 import com.umc.common.response.status.SuccessCode;
 import com.umc.domain.board.entity.Board;
 import com.umc.domain.board.repository.BoardRepository;
@@ -8,8 +10,10 @@ import com.umc.domain.post.dto.PostImageDTO;
 import com.umc.domain.post.dto.PostRequestDTO;
 import com.umc.domain.post.dto.PostResponseDTO;
 import com.umc.domain.post.dto.SimplePostResponseDTO;
+import com.umc.domain.post.entity.LikePost;
 import com.umc.domain.post.entity.Post;
 import com.umc.domain.post.entity.PostImage;
+import com.umc.domain.post.repository.LikePostRepository;
 import com.umc.domain.post.repository.PostRepository;
 import com.umc.domain.user.entity.Member;
 import com.umc.domain.user.repository.MemberRepository;
@@ -28,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
+    private final LikePostRepository likePostRepository;
     private final PostImageService postImageService;
 
     @Transactional
@@ -77,7 +82,7 @@ public class PostService {
         return ApiResponse.of(SuccessCode._OK, "삭제되었습니다.");
     }
 
-    public ApiResponse<Object> save(String boardId, PostRequestDTO postRequest, MultipartFile[] imageFiles) {
+    public ApiResponse<String> save(String boardId, PostRequestDTO postRequest, MultipartFile[] imageFiles) {
         Member writer = memberRepository.findByEmail(
                 SecurityContextHolder.getContext().getAuthentication().getName()
         ).orElseThrow(); // 되나?
@@ -97,7 +102,7 @@ public class PostService {
         return ApiResponse.of(SuccessCode._OK, "저장되었습니다");
     }
 
-    public ApiResponse<Object> update(String postId, PostRequestDTO postRequest, MultipartFile[] imageFiles) {
+    public ApiResponse<String> update(String postId, PostRequestDTO postRequest, MultipartFile[] imageFiles) {
         Post target = postRepository.findById(Long.getLong(postId)).orElseThrow();
         target.setTitle(postRequest.getTitle());
         target.setContent(postRequest.getContent());
@@ -109,5 +114,54 @@ public class PostService {
 
         postRepository.save(target);
         return ApiResponse.of(SuccessCode._OK, "수정되었습니다");
+    }
+
+    public ApiResponse<String> hitLike(String postId) {
+        Post post = postRepository.findById(Long.getLong(postId)).orElseThrow();
+        Member member = memberRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow();
+
+        if(likePostRepository.existsByPostIdAndMemberId(post.getId(), member.getId()))
+            return ApiResponse.ofFailure(ErrorCode.LIKE_ALREADY_EXISTS, "이미 좋아요를 누른 게시글입니다");
+
+        LikePost likePost = LikePost.builder()
+                .post(post)
+                .member(member)
+                .build();
+        likePostRepository.save(likePost);
+        return ApiResponse.of(SuccessCode._OK, post.getId() + " 게시물에 좋아요 완료 되었습니다");
+    }
+
+
+    public ApiResponse<Integer> getLikes(String postId) {
+        int likes = likePostRepository.countByPostId(Long.getLong(postId));
+        return ApiResponse.of(SuccessCode._OK, likes);
+    }
+
+    @Transactional
+    public ApiResponse<List<SimplePostResponseDTO>> getLikedPostsByUser() {
+        Member member = memberRepository.findByEmail(
+                SecurityUtil.getCurrentUserEmail()
+        ).orElseThrow();
+        List<Post> posts = postRepository.findAllLikedPostsByMemberIdOrderByLikedTime(member.getId());
+        return ApiResponse.of(SuccessCode._OK, posts.stream()
+                .map(post -> SimplePostResponseDTO.builder()
+                        .title(post.getTitle())
+                        .writerNickname(post.getWriter().getNickname())
+                        .createdAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
+                        .build()
+                ).toList()
+        );
+    }
+
+    public ApiResponse<Boolean> checkLike(String postId) {
+        Member member = memberRepository.findByEmail(
+                SecurityUtil.getCurrentUserEmail()
+        ).orElseThrow();
+        boolean liked = likePostRepository.existsByPostIdAndMemberId(Long.getLong(postId), member.getId());
+
+        return ApiResponse.of(SuccessCode._OK, liked);
     }
 }
