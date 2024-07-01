@@ -1,5 +1,6 @@
 package com.umc.domain.comment.service;
 
+import com.umc.common.jwt.SecurityUtil;
 import com.umc.common.response.ApiResponse;
 import com.umc.common.response.status.SuccessCode;
 import com.umc.domain.comment.dto.CommentRequestDTO;
@@ -10,7 +11,6 @@ import com.umc.domain.post.repository.PostRepository;
 import com.umc.domain.user.entity.Member;
 import com.umc.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class CommentService {
 
     public ApiResponse<String> save(String postId, CommentRequestDTO commentRequest) {
         Member writer = memberRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
+                SecurityUtil.getCurrentUserEmail()
             ).orElseThrow();
         Post post = postRepository.findById(Long.getLong(postId)).orElseThrow();
         Comment comment = Comment.builder()

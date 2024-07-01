@@ -18,7 +18,6 @@ import com.umc.domain.post.repository.PostRepository;
 import com.umc.domain.user.entity.Member;
 import com.umc.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,7 +83,7 @@ public class PostService {
 
     public ApiResponse<String> save(String boardId, PostRequestDTO postRequest, MultipartFile[] imageFiles) {
         Member writer = memberRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
+                SecurityUtil.getCurrentUserEmail()
         ).orElseThrow(); // 되나?
         Board board = boardRepository.findById(Long.getLong(boardId)).orElseThrow();
         // Post 엔티티 생성
@@ -119,7 +118,7 @@ public class PostService {
     public ApiResponse<String> hitLike(String postId) {
         Post post = postRepository.findById(Long.getLong(postId)).orElseThrow();
         Member member = memberRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
+                SecurityUtil.getCurrentUserEmail()
         ).orElseThrow();
 
         if(likePostRepository.existsByPostIdAndMemberId(post.getId(), member.getId()))
